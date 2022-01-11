@@ -1,21 +1,28 @@
 # basicSql
 
 https://git-scm.com/downloads
-open user on github
-https://github.com/settings/keys
-clone me:
-git clone https://github.com/handson-academy/basicSql.git
+####create github account
+https://www.youtube.com/watch?v=QUtk-Uuq9nE&ab_channel=MicroTalks
+https://www.youtube.com/watch?v=WgZIv5HI44o&ab_channel=SyntaxByte
+<br>or<br>
+https://www.youtube.com/watch?v=xIlFWsV3PAE&ab_channel=TechTalkDebu
 
+https://github.com/settings/keys
+<br>
+clone me:
+```
+git clone https://github.com/handson-academy/basicSql.git
+```
 https://www.docker.com/products/docker-desktop
 https://www.jetbrains.com/idea/download/#section=mac
 https://tableplus.com/download
 
--- git + shelf
+explain git + shelf
 
 https://start.spring.io/  -> spring boot - 2.5.2
 
--- hello world
-
+#### hello world
+```java
 @RestController
 @RequestMapping("/api/students")
 public class StudentsController {
@@ -27,10 +34,10 @@ public class StudentsController {
     }
 
 }
+```
 
-
---- swagger
-
+#### swagger
+```
 		<dependency>
 			<groupId>io.springfox</groupId>
 			<artifactId>springfox-swagger-ui</artifactId>
@@ -41,11 +48,12 @@ public class StudentsController {
 			<artifactId>springfox-swagger2</artifactId>
 			<version>2.6.1</version>
 		</dependency>
+```
 
 
 
-
-----
+####
+```java
 @Configuration
 @EnableSwagger2
 public class SwaggerConfig {
@@ -58,16 +66,17 @@ public class SwaggerConfig {
                 .build();
     }
 }
-
+```
 http://localhost:8080/swagger-ui.html#
 
------ START DOCKER
-
+### START DOCKER
+```
 docker run -d -p 5432:5432 -v postgresdata:/var/lib/postgresql/data -e POSTGRES_PASSWORD=postgres postgres
 docker ps
 docker logs [containerid]
+```
 
-
+```
 version: "3"
 services:
   db:
@@ -79,11 +88,11 @@ services:
     volumes:
       - ./postgresdata:/var/lib/postgresql/data
     privileged: true
-
+```
 docker-compose up -d
 
--- Spring DATA
-
+#### Spring DATA
+```
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -106,11 +115,11 @@ docker-compose up -d
 			<artifactId>joda-time</artifactId>
 			<version>2.10.13</version>
 		</dependency>
-
+```
 
 
 application.properties:
-
+```
 spring.datasource.url=jdbc:postgresql://localhost:5432/postgres
 spring.datasource.username=postgres
 spring.datasource.password=postgres
@@ -120,7 +129,10 @@ spring.datasource.driver-class-name=org.postgresql.Driver
 spring.jpa.show-sql = true
 spring.jpa.hibernate.ddl-auto = update
 spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+```
 
+Dates.java
+```java
 import org.joda.time.*;
 import org.springframework.lang.Nullable;
 
@@ -147,6 +159,7 @@ public static TimeZone TIME_ZONE = TimeZone.getTimeZone("Asia/Jerusalem");
     }
 
     public static Date atUtc(LocalDateTime date, TimeZone zone) {
+        if (date == null) return null;
         Calendar calendar = Calendar.getInstance();
         calendar.setFirstDayOfWeek(Calendar.SUNDAY);
         calendar.setTimeZone(zone);
@@ -171,6 +184,7 @@ public static TimeZone TIME_ZONE = TimeZone.getTimeZone("Asia/Jerusalem");
     }
 
     public static LocalDateTime atLocalTime(Date date, TimeZone zone) {
+        if (date == null) return null;
         var localDate = OffsetDateTime.ofInstant(date.toInstant(), zone.toZoneId()).toLocalDateTime();
         Calendar c = Calendar.getInstance();
         c.set(localDate.getYear(), localDate.getMonthValue() - 1, localDate.getDayOfMonth());
@@ -198,9 +212,10 @@ public static TimeZone TIME_ZONE = TimeZone.getTimeZone("Asia/Jerusalem");
         }
     }
 }
+```
 
---- student.java
-
+student.java
+```java
 @Entity
 @Table(name="student")
 public class Student implements Serializable {
@@ -225,20 +240,26 @@ public class Student implements Serializable {
 
     private Double graduationScore;
 }
+```
 explain builder plugin
 
--- repository and service
+#### repository and service
 
+```
 		<dependency>
 			<groupId>com.fasterxml.jackson.datatype</groupId>
 			<artifactId>jackson-datatype-joda</artifactId>
 			<version>2.12.3</version>
 		</dependency>
+```
 
-
+StudentRepository
+```java
 public interface StudentRepository extends CrudRepository<Student,Long> {
 }
-
+```
+StudentService
+```java
 @Service
 public class StudentService {
 
@@ -263,7 +284,9 @@ public class StudentService {
     }
 
 }
-
+```
+StudentIn.java
+```java
 public class StudentIn implements Serializable {
 
     @Length(max = 60)
@@ -289,16 +312,19 @@ public class StudentIn implements Serializable {
         student.setGraduationScore(graduationScore);
     }
 }
-
+```
 
 Student.java
+```java
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonProperty("createdAt")
     public LocalDateTime calcCreatedAt() {
         return Dates.atLocalTime(createdAt);
     }
+```
 
 StudentsController.java
+```java
     @Autowired
     StudentService studentService;
 
@@ -340,4 +366,134 @@ StudentsController.java
         studentService.delete(dbStudent.get());
         return new ResponseEntity<>("DELETED", HttpStatus.OK);
     }
+```
+###FPS - Filter Pagination Sort
 
+####simple filter
+StudentRepository.java
+```java
+    List<Student> findAllBySatScoreGreaterThan(Integer satScore);
+```
+
+
+StudentService.java
+```java
+    public List<Student> getStudentWithSatHigherThan(Integer sat) {
+        return repository.findAllBySatScoreGreaterThan(sat);
+    }
+```
+
+
+StudentController.java
+```java
+    @RequestMapping(value = "/highSat", method = RequestMethod.GET)
+    public ResponseEntity<?> getHighSatStudents(@RequestParam Integer sat)
+    {
+        return new ResponseEntity<>(studentService.getStudentWithSatHigherThan(sat), HttpStatus.OK);
+    }
+```
+
+####FPS
+apply fps.path
+<br>
+StudentOut:
+```java
+@Entity
+@SqlResultSetMapping(name = "StudentOut")
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class StudentOut {
+
+    private Long id;
+
+    private Date createdat;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonProperty("createdat")
+    public LocalDateTime calcCreatedAt() {
+        return Dates.atLocalTime(createdat);
+    }
+
+    private String fullname;
+    private Date birthdate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @JsonProperty("birthdate")
+    public LocalDateTime calcBirthDate() {
+        return Dates.atLocalTime(birthdate);
+    }
+
+    private Integer satscore;
+    private Double graduationscore;
+
+    public Date getCreatedat() {
+        return createdat;
+    }
+
+    public Date getBirthdate() {
+        return birthdate;
+    }
+
+    @Id
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+```
+
+StudentSortField.java
+```java
+public enum StudentSortField {
+    id("id") ,
+    createdAt ("created_at"),
+    fullName ("fullname"),
+    birthDate ("birth_date"),
+    satScore ("sat_score"),
+    graduationScore ("graduation_score");
+
+    public final String fieldName;
+    private StudentSortField(String fieldName) {
+        this.fieldName = fieldName;
+    }
+}
+```
+StudentsController.java
+```java
+    @Autowired
+    EntityManager em;
+
+    @Autowired
+    ObjectMapper om;
+
+    @RequestMapping(value = "", method = RequestMethod.GET)
+    public ResponseEntity<PaginationAndList> search(@RequestParam(required = false) String fullName,
+                                                    @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate fromBirthDate,
+                                                    @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate toBirthDate,
+                                                    @RequestParam(required = false) Integer fromSatScore,
+                                                    @RequestParam(required = false) Integer toSatScore,
+                                                    @RequestParam(defaultValue = "1") Integer page,
+                                                    @RequestParam(defaultValue = "50") @Min(1) Integer count,
+                                                    @RequestParam(defaultValue = "id") StudentSortField sort, @RequestParam(defaultValue = "asc") SortDirection sortDirection) throws JsonProcessingException {
+
+        var res =aFPS().select(List.of(
+                aFPSField().field("id").alias("id").build(),
+                aFPSField().field("created_at").alias("createdat").build(),
+                aFPSField().field("fullname").alias("fullname").build(),
+                aFPSField().field("birth_date").alias("birthdate").build(),
+                aFPSField().field("sat_score").alias("satscore").build(),
+                aFPSField().field("graduation_score").alias("graduationscore").build()
+                ))
+                .from(List.of(" student s"))
+                .conditions(List.of(
+                        aFPSCondition().condition("( lower(fullname) like :fullName )").parameterName("fullName").value(likeLowerOrNull(fullName)).build(),
+                        aFPSCondition().condition("( s.birth_Date >= :fromBirthDate )").parameterName("fromBirthDate").value(atUtc(fromBirthDate)).build(),
+                        aFPSCondition().condition("( s.birth_Date <= :toBirthDate )").parameterName("toBirthDate").value(atUtc(toBirthDate)).build(),
+                        aFPSCondition().condition("( sat_score >= :fromSatScore )").parameterName("fromSatScore").value(fromSatScore).build(),
+                        aFPSCondition().condition("( sat_score <= :toSatScore )").parameterName("toSatScore").value(toSatScore).build()
+                )).sortField(sort.fieldName).sortDirection(sortDirection).page(page).count(count)
+                .itemClass(StudentOut.class)
+                .build().exec(em, om);
+        return ResponseEntity.ok(res);
+    }
+```

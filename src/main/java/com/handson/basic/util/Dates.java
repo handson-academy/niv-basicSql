@@ -26,6 +26,7 @@ public class Dates {
     }
 
     public static Date atUtc(LocalDateTime date, TimeZone zone) {
+        if (date == null) return null;
         Calendar calendar = Calendar.getInstance();
 
         calendar.setFirstDayOfWeek(Calendar.SUNDAY);
@@ -52,6 +53,7 @@ public class Dates {
     }
 
     public static LocalDateTime atLocalTime(Date date, TimeZone zone) {
+        if (date == null) return null;
         var localDate = OffsetDateTime.ofInstant(date.toInstant(), zone.toZoneId()).toLocalDateTime();
         Calendar c = Calendar.getInstance();
         c.set(localDate.getYear(), localDate.getMonthValue() - 1, localDate.getDayOfMonth());

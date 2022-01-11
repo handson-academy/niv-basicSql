@@ -14,6 +14,10 @@ public class StudentService {
     @Autowired
     StudentRepository repository;
 
+    public List<Student> getStudentWithSatHigherThan(Integer sat) {
+        return repository.findAllBySatScoreGreaterThan(sat);
+    }
+
     public Iterable<Student> all() {
         return repository.findAll();
     }
