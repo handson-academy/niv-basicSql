@@ -1,7 +1,10 @@
 package com.handson.basic.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.handson.basic.util.Dates;
 import org.hibernate.validator.constraints.Length;
+import org.joda.time.LocalDateTime;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -23,11 +26,25 @@ public class Student implements Serializable {
     @Column(nullable = false, updatable = false)
     private Date createdAt = Dates.nowUTC();
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonProperty("createdAt")
+    public LocalDateTime calcCreatedAt() {
+        return Dates.atLocalTime(createdAt);
+    }
+
+
     @NotEmpty
     @Length(max = 60)
     private String fullname;
 
+
     private Date birthDate;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @JsonProperty("birthDate")
+    public LocalDateTime calcBirthDate() {
+        return Dates.atLocalTime(birthDate);
+    }
 
     @Min(100)
     @Max(800)
@@ -37,6 +54,22 @@ public class Student implements Serializable {
 
     public Long getId() {
         return id;
+    }
+
+    public void setFullname(String fullname) {
+        this.fullname = fullname;
+    }
+
+    public void setBirthDate(Date birthDate) {
+        this.birthDate = birthDate;
+    }
+
+    public void setSatScore(Integer satScore) {
+        this.satScore = satScore;
+    }
+
+    public void setGraduationScore(Double graduationScore) {
+        this.graduationScore = graduationScore;
     }
 
     public Date getCreatedAt() {

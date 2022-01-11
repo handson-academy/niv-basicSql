@@ -1,5 +1,15 @@
 # basicSql
 
+https://git-scm.com/downloads
+open user on github
+https://github.com/settings/keys
+clone me:
+git clone https://github.com/handson-academy/basicSql.git
+
+https://www.docker.com/products/docker-desktop
+https://www.jetbrains.com/idea/download/#section=mac
+https://tableplus.com/download
+
 -- git + shelf
 
 https://start.spring.io/  -> spring boot - 2.5.2
@@ -138,13 +148,13 @@ public static TimeZone TIME_ZONE = TimeZone.getTimeZone("Asia/Jerusalem");
 
     public static Date atUtc(LocalDateTime date, TimeZone zone) {
         Calendar calendar = Calendar.getInstance();
-        calendar.setFirstDayOfWeek(1);
+        calendar.setFirstDayOfWeek(Calendar.SUNDAY);
         calendar.setTimeZone(zone);
-        calendar.set(date.getYear(), date.getMonthOfYear() - 1, date.getDayOfMonth());
-        calendar.set(1, date.getHourOfDay());
-        calendar.set(1, date.getMinuteOfHour());
-        calendar.set(1, date.getSecondOfMinute());
-        calendar.set(1, 0);
+        calendar.set(date.getYear(), date.getMonthOfYear()-1, date.getDayOfMonth());//convert from locatDateTime to Calender time
+        calendar.set(Calendar.HOUR_OF_DAY, date.getHourOfDay());
+        calendar.set(Calendar.MINUTE, date.getMinuteOfHour());
+        calendar.set(Calendar.SECOND, date.getSecondOfMinute());
+        calendar.set(Calendar.MILLISECOND, 0);
         return calendar.getTime();
     }
 
@@ -161,13 +171,13 @@ public static TimeZone TIME_ZONE = TimeZone.getTimeZone("Asia/Jerusalem");
     }
 
     public static LocalDateTime atLocalTime(Date date, TimeZone zone) {
-        java.time.LocalDateTime localDate = OffsetDateTime.ofInstant(date.toInstant(), zone.toZoneId()).toLocalDateTime();
+        var localDate = OffsetDateTime.ofInstant(date.toInstant(), zone.toZoneId()).toLocalDateTime();
         Calendar c = Calendar.getInstance();
         c.set(localDate.getYear(), localDate.getMonthValue() - 1, localDate.getDayOfMonth());
-        c.set(1, localDate.getHour());
-        c.set(1, localDate.getMinute());
-        c.set(1, localDate.getSecond());
-        c.set(1, 0);
+        c.set(Calendar.HOUR_OF_DAY, localDate.getHour());
+        c.set(Calendar.MINUTE, localDate.getMinute());
+        c.set(Calendar.SECOND, localDate.getSecond());
+        c.set(Calendar.MILLISECOND, 0);
         LocalDateTime res = LocalDateTime.fromCalendarFields(c);
         return res;
     }
@@ -215,4 +225,119 @@ public class Student implements Serializable {
 
     private Double graduationScore;
 }
+explain builder plugin
+
+-- repository and service
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-joda</artifactId>
+			<version>2.12.3</version>
+		</dependency>
+
+
+public interface StudentRepository extends CrudRepository<Student,Long> {
+}
+
+@Service
+public class StudentService {
+
+    @Autowired
+    StudentRepository repository;
+
+    public Iterable<Student> all() {
+        return repository.findAll();
+    }
+
+    public Optional<Student> findById(Long id) {
+        return repository.findById(id);
+    }
+
+
+    public Student save(Student student) {
+        return repository.save(student);
+    }
+
+    public void delete(Student student) {
+        repository.delete(student);
+    }
+
+}
+
+public class StudentIn implements Serializable {
+
+    @Length(max = 60)
+    private String fullname;
+
+    @JsonFormat(pattern="yyyy-MM-dd")
+    private LocalDate birthDate;
+
+    @Min(100)
+    @Max(800)
+    private Integer satScore;
+
+    private Double graduationScore;
+
+    public Student toStudent() {
+        return aStudent().birthDate(Dates.atUtc(birthDate)).fullname(fullname).satScore(satScore).graduationScore(graduationScore).build();
+    }
+
+    public void updateStudent(Student student) {
+        student.setBirthDate(Dates.atUtc(birthDate));
+        student.setFullname(fullname);
+        student.setSatScore(satScore);
+        student.setGraduationScore(graduationScore);
+    }
+}
+
+
+Student.java
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonProperty("createdAt")
+    public LocalDateTime calcCreatedAt() {
+        return Dates.atLocalTime(createdAt);
+    }
+
+StudentsController.java
+    @Autowired
+    StudentService studentService;
+
+    @RequestMapping(value = "", method = RequestMethod.GET)
+    public ResponseEntity<?> getAllStudents()
+    {
+        return new ResponseEntity<>(studentService.all(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    public ResponseEntity<?> getOneStudent(@PathVariable Long id)
+    {
+        return new ResponseEntity<>(studentService.findById(id), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "", method = RequestMethod.POST)
+    public ResponseEntity<?> insertStudent(@RequestBody StudentIn studentIn)
+    {
+        Student student = studentIn.toStudent();
+        student = studentService.save(student);
+        return new ResponseEntity<>(student, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateStudent(@PathVariable Long id, @RequestBody StudentIn student)
+    {
+        Optional<Student> dbStudent = studentService.findById(id);
+        if (dbStudent.isEmpty()) throw new RuntimeException("Student with id: " + id + " not found");
+        student.updateStudent(dbStudent.get());
+        Student updatedStudent = studentService.save(dbStudent.get());
+        return new ResponseEntity<>(updatedStudent, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteStudent(@PathVariable Long id)
+    {
+        Optional<Student> dbStudent = studentService.findById(id);
+        if (dbStudent.isEmpty()) throw new RuntimeException("Student with id: " + id + " not found");
+        studentService.delete(dbStudent.get());
+        return new ResponseEntity<>("DELETED", HttpStatus.OK);
+    }
 

@@ -27,13 +27,15 @@ public class Dates {
 
     public static Date atUtc(LocalDateTime date, TimeZone zone) {
         Calendar calendar = Calendar.getInstance();
-        calendar.setFirstDayOfWeek(1);
+
+        calendar.setFirstDayOfWeek(Calendar.SUNDAY);
         calendar.setTimeZone(zone);
-        calendar.set(date.getYear(), date.getMonthOfYear() - 1, date.getDayOfMonth());
-        calendar.set(1, date.getHourOfDay());
-        calendar.set(1, date.getMinuteOfHour());
-        calendar.set(1, date.getSecondOfMinute());
-        calendar.set(1, 0);
+
+        calendar.set(date.getYear(), date.getMonthOfYear()-1, date.getDayOfMonth());//convert from locatDateTime to Calender time
+        calendar.set(Calendar.HOUR_OF_DAY, date.getHourOfDay());
+        calendar.set(Calendar.MINUTE, date.getMinuteOfHour());
+        calendar.set(Calendar.SECOND, date.getSecondOfMinute());
+        calendar.set(Calendar.MILLISECOND, 0);
         return calendar.getTime();
     }
 
@@ -50,13 +52,13 @@ public class Dates {
     }
 
     public static LocalDateTime atLocalTime(Date date, TimeZone zone) {
-        java.time.LocalDateTime localDate = OffsetDateTime.ofInstant(date.toInstant(), zone.toZoneId()).toLocalDateTime();
+        var localDate = OffsetDateTime.ofInstant(date.toInstant(), zone.toZoneId()).toLocalDateTime();
         Calendar c = Calendar.getInstance();
         c.set(localDate.getYear(), localDate.getMonthValue() - 1, localDate.getDayOfMonth());
-        c.set(1, localDate.getHour());
-        c.set(1, localDate.getMinute());
-        c.set(1, localDate.getSecond());
-        c.set(1, 0);
+        c.set(Calendar.HOUR_OF_DAY, localDate.getHour());
+        c.set(Calendar.MINUTE, localDate.getMinute());
+        c.set(Calendar.SECOND, localDate.getSecond());
+        c.set(Calendar.MILLISECOND, 0);
         LocalDateTime res = LocalDateTime.fromCalendarFields(c);
         return res;
     }
