@@ -1,12 +1,13 @@
 package com.handson.basic.models;
 
 public enum StudentSortField {
-    id("id") ,
-    createdAt ("created_at"),
-    fullName ("fullname"),
-    birthDate ("birth_date"),
-    satScore ("sat_score"),
-    graduationScore ("graduation_score");
+    id("s.id") ,
+    createdAt ("s.created_at"),
+    fullName ("s.fullname"),
+    birthDate ("s.birth_date"),
+    satScore ("s.at_score"),
+    graduationScore ("s.graduation_score"),
+    avgScore (" (select avg(sg.course_score) from  student_grade sg where sg.student_id = s.id ) ");
 
     public final String fieldName;
     private StudentSortField(String fieldName) {

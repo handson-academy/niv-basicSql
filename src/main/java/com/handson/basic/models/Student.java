@@ -8,6 +8,8 @@ import org.joda.time.LocalDateTime;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -32,11 +34,16 @@ public class Student implements Serializable {
         return Dates.atLocalTime(createdAt);
     }
 
+    @OneToMany(mappedBy = "student", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    private Collection<StudentGrade> studentGrades = new ArrayList<>();
 
     @NotEmpty
     @Length(max = 60)
     private String fullname;
 
+    public Collection<StudentGrade> getStudentGrades() {
+        return studentGrades;
+    }
 
     private Date birthDate;
 

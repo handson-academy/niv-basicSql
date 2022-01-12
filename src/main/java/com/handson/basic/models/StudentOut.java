@@ -37,7 +37,7 @@ public class StudentOut {
 
     private Integer satscore;
     private Double graduationscore;
-
+    private Double avgscore;
     public Date getCreatedat() {
         return createdat;
     }
@@ -85,6 +85,14 @@ public class StudentOut {
 
     public void setGraduationscore(Double graduationscore) {
         this.graduationscore = graduationscore;
+    }
+
+    public Double getAvgscore() {
+        return avgscore;
+    }
+
+    public void setAvgscore(Double avgscore) {
+        this.avgscore = avgscore;
     }
 }
 
