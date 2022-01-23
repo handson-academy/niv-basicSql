@@ -1,6 +1,5 @@
 # basicSql
 
-
 https://git-scm.com/downloads
 ####create github account
 https://www.youtube.com/watch?v=QUtk-Uuq9nE&ab_channel=MicroTalks
