@@ -28,10 +28,8 @@ public class Dates {
     public static Date atUtc(LocalDateTime date, TimeZone zone) {
         if (date == null) return null;
         Calendar calendar = Calendar.getInstance();
-
         calendar.setFirstDayOfWeek(Calendar.SUNDAY);
         calendar.setTimeZone(zone);
-
         calendar.set(date.getYear(), date.getMonthOfYear()-1, date.getDayOfMonth());//convert from locatDateTime to Calender time
         calendar.set(Calendar.HOUR_OF_DAY, date.getHourOfDay());
         calendar.set(Calendar.MINUTE, date.getMinuteOfHour());
