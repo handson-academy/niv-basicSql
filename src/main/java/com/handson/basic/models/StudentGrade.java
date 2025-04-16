@@ -3,6 +3,7 @@ package com.handson.basic.models;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.handson.basic.model.Student;
 import com.handson.basic.util.Dates;
 import org.hibernate.validator.constraints.Length;
 import org.joda.time.LocalDateTime;

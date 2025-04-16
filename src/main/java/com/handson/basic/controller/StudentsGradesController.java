@@ -2,6 +2,7 @@ package com.handson.basic.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.handson.basic.model.Student;
 import com.handson.basic.models.*;
 import com.handson.basic.repo.StudentGradeService;
 import com.handson.basic.repo.StudentService;

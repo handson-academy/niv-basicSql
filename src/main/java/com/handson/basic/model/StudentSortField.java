@@ -1,4 +1,4 @@
-package com.handson.basic.models;
+package com.handson.basic.model;
 
 public enum StudentSortField {
     id("s.id") ,
@@ -9,8 +9,9 @@ public enum StudentSortField {
     graduationScore ("s.graduation_score"),
     avgScore (" (select avg(sg.course_score) from  student_grade sg where sg.student_id = s.id ) ");
 
-    public final String fieldName;
-    private StudentSortField(String fieldName) {
+public final String fieldName;
+private StudentSortField(String fieldName) {
         this.fieldName = fieldName;
-    }
-}
+        }
+        }
+

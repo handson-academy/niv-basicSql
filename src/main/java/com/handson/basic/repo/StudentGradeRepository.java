@@ -1,7 +1,5 @@
 package com.handson.basic.repo;
 
-
-import com.handson.basic.models.Student;
 import com.handson.basic.models.StudentGrade;
 import org.springframework.data.repository.CrudRepository;
 

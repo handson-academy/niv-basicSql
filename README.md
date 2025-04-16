@@ -215,13 +215,16 @@ public static TimeZone TIME_ZONE = TimeZone.getTimeZone("Asia/Jerusalem");
 ```
 
 student.java
+
 ```java
+import org.hibernate.validator.constraints.Length;
+
 @Entity
-@Table(name="student")
+@Table(name = "student")
 public class Student implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @NotNull
@@ -238,10 +241,18 @@ public class Student implements Serializable {
     @Max(800)
     private Integer satScore;
 
+    @Min(30)
+    @Max(110)
     private Double graduationScore;
+
+    @Length(max=20)
+    private String phone;
+    
+    @Length(max=500)
+    private String profilePicture;
 }
 ```
-explain builder plugin
+1. [ ] explain builder plugin
 
 #### repository and service
 
@@ -300,9 +311,16 @@ public class StudentIn implements Serializable {
     private Integer satScore;
 
     private Double graduationScore;
+    
+    @Length(max=20)
+    private String phone;
 
     public Student toStudent() {
-        return aStudent().birthDate(Dates.atUtc(birthDate)).fullname(fullname).satScore(satScore).graduationScore(graduationScore).build();
+        return aStudent().birthDate(Dates.atUtc(birthDate))
+                         .fullname(fullname)
+                         .satScore(satScore)
+                         .graduationScore(graduationScore)
+                         .phone(phone).build();
     }
 
     public void updateStudent(Student student) {
@@ -310,6 +328,7 @@ public class StudentIn implements Serializable {
         student.setFullname(fullname);
         student.setSatScore(satScore);
         student.setGraduationScore(graduationScore);
+        student.phone(phone);
     }
 }
 ```
